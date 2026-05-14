@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SISTEMA DE COBRANÇA - V.K.</title>
+<style>
+* {
+box-sizing: border-box;
+user-select: none;
+-webkit-user-select: none;
+}
+body {
+margin: 0;
+padding: 0;
+background: #111111;
+color: white;
+font-family: monospace;
+overflow: hidden;
+width: 100vw;
+height: 100vh;
+}
+.tela {
+display: none;
+width: 100%;
+height: 100%;
+position: absolute;
+top: 0;
+left: 0;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+}
+.tela-ativa {
+display: flex;
+}
+#telaInicial {
+background: #0a0a0a;
+}
+#fotoAgiota {
+max-width: 80%;
+width: 350px;
+transition: all 0.3s;
+filter: grayscale(100%) contrast(150%);
+}
+.descricao-bizarra {
+width: 90%;
+max-width: 600px;
+margin-top: 20px;
+font-size: 14px;
+text-align: center;
+white-space: pre-line;
+color: #cccccc;
+line-height: 1.5;
+height: 200px;
+overflow-y: scroll;
+border: 1px solid #333;
+padding: 10px;
+background: #000000;
+}
+.btn-iniciar {
+margin-top: 20px;
+padding: 15px 40px;
+background: #8b0000;
+color: white;
+border: none;
+font-family: monospace;
+font-size: 20px;
+font-weight: bold;
+cursor: pointer;
+text-transform: uppercase;
+box-shadow: 0 0 15px #ff0000;
+animation: pulsarBotao 2s infinite;
+}
+.status-bar {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+background: #222;
+padding: 10px;
+display: flex;
+justify-content: space-around;
+border-bottom: 2px solid #555;
+z-index: 100;
+font-size: 16px;
+}
+.valor-vermelho {
+color: #ff3333;
+font-weight: bold;
+}
+.valor-verde {
+color: #33ff33;
+font-weight: bold;
+}
+.valor-amarelo {
+color: #ffff33;
+font-weight: bold;
+}
+.hub-container {
+display: flex;
+flex-direction: column;
+gap: 20px;
+width: 90%;
+max-width: 500px;
+margin-top: 60px;
+}
+.btn-jogo {
+padding: 20px;
+background: #333;
+color: white;
+border: 1px solid #555;
+font-family: monospace;
+font-size: 18px;
+cursor: pointer;
+}
+.btn-pagar {
+padding: 15px;
+background: #004400;
+color: white;
+border: 1px solid #00ff00;
+font-family: monospace;
+cursor: pointer;
+margin-top: 10px;
+}
+.btn-boleto {
+padding: 15px;
+background: #444400;
+color: white;
+border: 1px solid #ffff00;
+font-family: monospace;
+cursor: pointer;
+}
+#areaMinigame1 {
+width: 100%;
+height: calc(100% - 100px);
+position: relative;
+background: #050505;
+margin-top: 60px;
+overflow: hidden;
+}
+.pix-coletavel {
+position: absolute;
+width: 50px;
+height: 50px;
+background: #00aa00;
+color: white;
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: bold;
+border-radius: 50%;
+cursor: pointer;
+}
+#areaMinigame2 {
+width: 100%;
+height: calc(100% - 100px);
+position: relative;
+background: #111;
+margin-top: 60px;
+overflow: hidden;
+}
+#jogador {
+width: 40px;
+height: 40px;
+background: #00ff00;
+position: absolute;
+bottom: 20px;
+left: 50%;
+transform: translateX(-50%);
+}
+.inimigo {
+width: 50px;
+height: 50px;
+background: #ff0000;
+position: absolute;
+}
+.controles-mobile {
+display: none;
+position: absolute;
+bottom: 20px;
+width: 100%;
+justify-content: space-around;
+z-index: 50;
+}
+.btn-controle {
+width: 80px;
+height: 80px;
+background: rgba(255,255,255,0.2);
+border: 2px solid #fff;
+border-radius: 50%;
+color: white;
+font-size: 30px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.msgAgiota {
+position: fixed;
+color: red;
+font-family: monospace;
+font-size: 25px;
+z-index: 9999;
+pointer-events: none;
+text-shadow: 2px 2px 0px black;
+font-weight: bold;
+}
+.tremer1 {
+animation: tremer1 0.1s infinite;
+}
+.tremer2 {
+animation: tremer2 0.05s infinite;
+}
+.capiroto-mode {
+filter: invert(1) sepia(1) saturate(5) hue-rotate(300deg) contrast(200%) !important;
+}
+#jumpscareScreen {
+background: black;
+z-index: 10000;
+}
+.texto-jumpscare {
+color: red;
+font-size: 40px;
+position: absolute;
+text-align: center;
+width: 100%;
+top: 40%;
+font-weight: bold;
+animation: glitchText 0.1s infinite;
+}
+@keyframes tremer1 {
+0% {transform: translate(0px,0px);}
+25% {transform: translate(1px,-1px);}
+50% {transform: translate(-1px,1px);}
+75% {transform: translate(1px,1px);}
+100% {transform: translate(0px,0px);}
+}
+@keyframes tremer2 {
+0% {transform: translate(0px,0px) rotate(0deg);}
+25% {transform: translate(4px,-3px) rotate(1deg);}
+50% {transform: translate(-4px,3px) rotate(-1deg);}
+75% {transform: translate(3px,2px) rotate(1deg);}
+100% {transform: translate(0px,0px) rotate(0deg);}
+}
+@keyframes pulsarBotao {
+0% {transform: scale(1);}
+50% {transform: scale(1.05); box-shadow: 0 0 25px #ff0000;}
+100% {transform: scale(1);}
+}
+@keyframes glitchText {
+0% {transform: translate(0,0);}
+20% {transform: translate(-5px,5px);}
+40% {transform: translate(5px,-5px);}
+60% {transform: translate(-5px,-5px);}
+80% {transform: translate(5px,5px);}
+100% {transform: translate(0,0);}
+}
+</style>
+</head>
+<body id="corpo">
+
+<div id="telaInicial" class="tela tela-ativa">
+<img id="fotoAgiota" src="https://www.dropbox.com/scl/fi/agmz2xi4to90jhopunf0a/agiota.png?rlkey=halb4s9arxmgc8pvv1072sr3z&st=zzxyr0rc&raw=1">
+<div class="descricao-bizarra" id="textoLore">
+NOME: Victor Kane
+IDADE: Desconhecida
+STATUS: Observando.
+
+RELATÓRIO DE AMEAÇA:
+Sujeito extremamente volátil. Não pisca. Não desvia o olhar. O cheiro de enxofre e cigarro barato precede sua chegada. Relatos afirmam que ele sabe o CEP da sua avó, o histórico do seu roteador e o que você digitou e apagou ontem às 03:14 da manhã.
+
+MÉTODO DE COBRANÇA:
+Ele não manda cartas. Ele altera a realidade ao seu redor. Celulares derretem na mão de quem deve mais de 50 reais. Um cliente atrasou 12 segundos e acordou sem as portas de casa. 
+
+AVISO DE SISTEMA:
+Sua dívida foi comprada por ele.
+O cronômetro já começou.
+Se você ficar parado lendo isso, ele vai assumir o controle.
+Arranje dinheiro. Pague suas contas. Sobreviva.
+</div>
+<button class="btn-iniciar" onclick="iniciarJogo()">ACEITAR OS TERMOS</button>
+</div>
+
+<div id="telaHub" class="tela">
+<div class="status-bar">
+<span>DÍVIDA: <span id="displayDivida" class="valor-vermelho">R$ 5000</span></span>
+<span>SALDO: <span id="displayDinheiro" class="valor-verde">R$ 0</span></span>
+<span>BOLETOS: <span id="displayBoletos" class="valor-amarelo">R$ 100</span></span>
+</div>
+<div class="hub-container">
+<h2 style="text-align:center; margin:0;">CENTRAL DE GANHOS</h2>
+<p style="text-align:center; font-size:12px; color:#888;">NADA É FÁCIL. TRABALHE.</p>
+<button class="btn-jogo" onclick="abrirMinigame1()">TRABALHO 1: CATAR PIX PERDIDO NA DEEP WEB</button>
+<button class="btn-jogo" onclick="abrirMinigame2()">TRABALHO 2: FUGIR DO COBRADOR MOTORIZADO</button>
+<button class="btn-boleto" onclick="pagarBoletos()">PAGAR CONTAS DE CASA (R$ 100)</button>
+<button class="btn-pagar" onclick="pagarAgiota()">AMORTIZAR DÍVIDA (R$ 500)</button>
+</div>
+</div>
+
+<div id="telaMinigame1" class="tela">
+<div class="status-bar">
+<span>SALDO: <span id="mg1Dinheiro" class="valor-verde">R$ 0</span></span>
+<button onclick="voltarHub()" style="background:red;color:white;border:none;">SAIR</button>
+</div>
+<div id="areaMinigame1"></div>
+<p style="position:absolute; bottom:10px; text-align:center; width:100%; color:#555;" id="instrucaoMg1">
+CLIQUE/TOQUE NOS PIX ANTES QUE SUMAM
+</p>
+</div>
+
+<div id="telaMinigame2" class="tela">
+<div class="status-bar">
+<span>SALDO: <span id="mg2Dinheiro" class="valor-verde">R$ 0</span></span>
+<button onclick="voltarHub()" style="background:red;color:white;border:none;">SAIR</button>
+</div>
+<div id="areaMinigame2">
+<div id="jogador"></div>
+</div>
+<div class="controles-mobile" id="controlesMobile">
+<div class="btn-controle" id="btnEsq"><</div>
+<div class="btn-controle" id="btnDir">></div>
+</div>
+<p style="position:absolute; top:70px; text-align:center; width:100%; color:#555;" id="instrucaoMg2">
+USE SETAS OU TOQUE NA TELA PARA DESVIAR
+</p>
+</div>
+
+<div id="jumpscareScreen" class="tela">
+<img id="fotoFinal" src="https://www.dropbox.com/scl/fi/agmz2xi4to90jhopunf0a/agiota.png?rlkey=halb4s9arxmgc8pvv1072sr3z&st=zzxyr0rc&raw=1" style="width:100%; height:100%; object-fit:cover; opacity:0.5;">
+<div class="texto-jumpscare" id="textoMorte">
+TEMPO ESGOTADO<br>ELE CHEGOU
+</div>
+</div>
+
+<script>
+let dinheiro = 0;
+let divida = 5000;
+let boletos = 100;
+let tempoParado = 0;
+let estagio = 0;
+let modoCapiroto = false;
+let jogoRodando = false;
+let mg1Interval = null;
+let mg2Interval = null;
+let mg2Spawner = null;
+let jogadorX = 50;
+let isMobile = false;
+
+const frasesMedo = [
+"JUROS +R$ 14",
+"ELE TA TE OLHANDO",
+"VOCE PISCOU",
+"CPF CANCELADO",
+"SUA ALMA É JUROS",
+"CADE O PIX",
+"TO NA SUA PORTA",
+"ACHOU QUE IA FUGIR?",
+"ESTOU ENTRANDO",
+"A CONTA CHEGOU",
+"NÃO OLHE PARA TRAS",
+"666% AO DIA"
+];
+
+const frasesCapiroto = [
+"01001101 01001111 01010010 01010100 01000101",
+"VØCÊ É MĘU",
+"SANGUE NO SISTEMA",
+"E X E C U T A N D O",
+"N̷A̷O̷ ̷H̷A̷ ̷S̷A̷I̷D̷A̷",
+"A CARNE É FRACA",
+"O INFERNO É AQUI"
+];
+
+const corpo = document.getElementById("corpo");
+const displayDivida = document.getElementById("displayDivida");
+const displayDinheiro = document.getElementById("displayDinheiro");
+const displayBoletos = document.getElementById("displayBoletos");
+const mg1Dinheiro = document.getElementById("mg1Dinheiro");
+const mg2Dinheiro = document.getElementById("mg2Dinheiro");
+const fotoAgiota = document.getElementById("fotoAgiota");
+const fotoFinal = document.getElementById("fotoFinal");
+const textoMorte = document.getElementById("textoMorte");
+const jogador = document.getElementById("jogador");
+const areaMinigame2 = document.getElementById("areaMinigame2");
+const controlesMobile = document.getElementById("controlesMobile");
+
+function initApp() {
+let chance = Math.random();
+if (chance <= 0.33) {
+modoCapiroto = true;
+}
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+isMobile = true;
+controlesMobile.style.display = "flex";
+document.getElementById("instrucaoMg1").innerText = "TOQUE NOS PIX RAPIDO";
+document.getElementById("instrucaoMg2").innerText = "USE OS BOTOES PARA DESVIAR";
+}
+}
+
+function resetarTempo() {
+if (estagio === 3) return;
+tempoParado = 0;
+if (estagio !== 0) {
+estagio = 0;
+corpo.classList.remove("tremer1");
+corpo.classList.remove("tremer2");
+let msgs = document.querySelectorAll(".msgAgiota");
+for (let i = 0; i < msgs.length; i++) {
+msgs[i].remove();
+}
+}
+}
+
+document.addEventListener("mousemove", resetarTempo);
+document.addEventListener("keydown", resetarTempo);
+document.addEventListener("click", resetarTempo);
+document.addEventListener("touchstart", resetarTempo);
+
+setInterval(function() {
+if (estagio === 3) return;
+tempoParado++;
+if (jogoRodando) {
+divida += 5;
+atualizarHud();
+}
+if (tempoParado >= 10 && estagio < 1) {
+estagio = 1;
+corpo.classList.add("tremer1");
+}
+if (tempoParado >= 20 && estagio < 2) {
+estagio = 2;
+corpo.classList.remove("tremer1");
+corpo.classList.add("tremer2");
+iniciarSpamMensagens();
+}
+if (tempoParado >= 30 && estagio < 3) {
+ativarGameoverInatividade();
+}
+}, 1000);
+
+setInterval(function() {
+if (jogoRodando && estagio !== 3) {
+boletos += 2;
+atualizarHud();
+}
+}, 5000);
+
+function iniciarSpamMensagens() {
+let spam = setInterval(function() {
+if (estagio !== 2) {
+clearInterval(spam);
+return;
+}
+let msg = document.createElement("div");
+msg.className = "msgAgiota";
+let arrayUsado = modoCapiroto ? frasesCapiroto : frasesMedo;
+let index = Math.floor(Math.random() * arrayUsado.length);
+msg.innerText = arrayUsado[index];
+msg.style.left = (Math.random() * 80) + "%";
+msg.style.top = (Math.random() * 90) + "%";
+if (modoCapiroto) {
+msg.style.color = "#8b0000";
+msg.style.fontSize = "35px";
+}
+document.body.appendChild(msg);
+setTimeout(function() {
+if(msg.parentNode) msg.remove();
+}, 400);
+}, 150);
+}
+
+function ativarGameoverInatividade() {
+estagio = 3;
+esconderTodasTelas();
+document.getElementById("jumpscareScreen").classList.add("tela-ativa");
+if (modoCapiroto) {
+fotoFinal.classList.add("capiroto-mode");
+textoMorte.innerText = "S U A  A L M A  É  M I N H A";
+textoMorte.style.color = "#ffffff";
+textoMorte.style.backgroundColor = "#8b0000";
+}
+let glitchAudio = new AudioContext();
+let osc = glitchAudio.createOscillator();
+osc.type = "sawtooth";
+osc.frequency.setValueAtTime(100, glitchAudio.currentTime);
+osc.frequency.exponentialRampToValueAtTime(0.01, glitchAudio.currentTime + 2);
+osc.connect(glitchAudio.destination);
+osc.start();
+osc.stop(glitchAudio.currentTime + 2);
+}
+
+function esconderTodasTelas() {
+let telas = document.querySelectorAll(".tela");
+for (let i = 0; i < telas.length; i++) {
+telas[i].classList.remove("tela-ativa");
+}
+}
+
+function atualizarHud() {
+displayDivida.innerText = "R$ " + divida;
+displayDinheiro.innerText = "R$ " + dinheiro;
+displayBoletos.innerText = "R$ " + boletos;
+mg1Dinheiro.innerText = "R$ " + dinheiro;
+mg2Dinheiro.innerText = "R$ " + dinheiro;
+}
+
+function iniciarJogo() {
+jogoRodando = true;
+resetarTempo();
+esconderTodasTelas();
+document.getElementById("telaHub").classList.add("tela-ativa");
+atualizarHud();
+}
+
+function pagarAgiota() {
+if (dinheiro >= 500) {
+dinheiro -= 500;
+divida -= 500;
+if (divida < 0) divida = 0;
+atualizarHud();
+resetarTempo();
+} else {
+alert("VOCE NAO TEM DINHEIRO SUFICIENTE VERME");
+}
+}
+
+function pagarBoletos() {
+if (dinheiro >= boletos) {
+dinheiro -= boletos;
+boletos = 0;
+atualizarHud();
+resetarTempo();
+} else {
+alert("VAI CORTAR A LUZ. ARRANJE DINHEIRO.");
+}
+}
+
+function voltarHub() {
+pararMinigames();
+esconderTodasTelas();
+document.getElementById("telaHub").classList.add("tela-ativa");
+resetarTempo();
+}
+
+function abrirMinigame1() {
+esconderTodasTelas();
+document.getElementById("telaMinigame1").classList.add("tela-ativa");
+let area = document.getElementById("areaMinigame1");
+area.innerHTML = "";
+mg1Interval = setInterval(function() {
+if (estagio === 3) return;
+let pix = document.createElement("div");
+pix.className = "pix-coletavel";
+pix.innerText = "+$";
+let maxW = area.clientWidth - 50;
+let maxH = area.clientHeight - 50;
+pix.style.left = Math.random() * maxW + "px";
+pix.style.top = Math.random() * maxH + "px";
+pix.onclick = function() {
+dinheiro += Math.floor(Math.random() * 15) + 5;
+atualizarHud();
+pix.remove();
+resetarTempo();
+};
+if (isMobile) {
+pix.ontouchstart = pix.onclick;
+}
+area.appendChild(pix);
+setTimeout(function() {
+if (pix.parentNode) pix.remove();
+}, 1200);
+}, 800);
+}
+
+function abrirMinigame2() {
+esconderTodasTelas();
+document.getElementById("telaMinigame2").classList.add("tela-ativa");
+jogadorX = 50;
+jogador.style.left = jogadorX + "%";
+let inimigos = [];
+let velocidade = 5;
+mg2Spawner = setInterval(function() {
+if (estagio === 3) return;
+let ini = document.createElement("div");
+ini.className = "inimigo";
+ini.style.left = Math.random() * 90 + "%";
+ini.style.top = "-50px";
+areaMinigame2.appendChild(ini);
+inimigos.push({el: ini, y: -50});
+dinheiro += 10;
+atualizarHud();
+velocidade += 0.1;
+}, 1000);
+mg2Interval = setInterval(function() {
+if (estagio === 3) return;
+let rectJ = jogador.getBoundingClientRect();
+for (let i = 0; i < inimigos.length; i++) {
+let obj = inimigos[i];
+obj.y += velocidade;
+obj.el.style.top = obj.y + "px";
+let rectI = obj.el.getBoundingClientRect();
+if (rectI.bottom >= rectJ.top && rectI.top <= rectJ.bottom && rectI.right >= rectJ.left && rectI.left <= rectJ.right) {
+pararMinigames();
+alert("O COBRADOR TE PEGOU! PERDEU R$ 100");
+dinheiro -= 100;
+if (dinheiro < 0) dinheiro = 0;
+voltarHub();
+return;
+}
+if (obj.y > areaMinigame2.clientHeight) {
+obj.el.remove();
+inimigos.splice(i, 1);
+i--;
+}
+}
+}, 20);
+}
+
+function moverJogadorMg2(direcao) {
+if (direcao === "esq" && jogadorX > 5) jogadorX -= 10;
+if (direcao === "dir" && jogadorX < 95) jogadorX += 10;
+jogador.style.left = jogadorX + "%";
+resetarTempo();
+}
+
+document.addEventListener("keydown", function(e) {
+if (document.getElementById("telaMinigame2").classList.contains("tela-ativa")) {
+if (e.key === "ArrowLeft") moverJogadorMg2("esq");
+if (e.key === "ArrowRight") moverJogadorMg2("dir");
+}
+});
+
+document.getElementById("btnEsq").ontouchstart = function(e) {
+e.preventDefault();
+moverJogadorMg2("esq");
+};
+document.getElementById("btnDir").ontouchstart = function(e) {
+e.preventDefault();
+moverJogadorMg2("dir");
+};
+document.getElementById("btnEsq").onmousedown = function() {
+moverJogadorMg2("esq");
+};
+document.getElementById("btnDir").onmousedown = function() {
+moverJogadorMg2("dir");
+};
+
+function pararMinigames() {
+clearInterval(mg1Interval);
+clearInterval(mg2Interval);
+clearInterval(mg2Spawner);
+let area1 = document.getElementById("areaMinigame1");
+let area2 = document.getElementById("areaMinigame2");
+area1.innerHTML = "";
+let filhos = area2.querySelectorAll(".inimigo");
+for (let i = 0; i < filhos.length; i++) {
+filhos[i].remove();
+}
+}
+
+window.onload = initApp;
+</script>
+</body>
+</html>
